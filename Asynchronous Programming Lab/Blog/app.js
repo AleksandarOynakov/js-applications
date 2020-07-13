@@ -24,8 +24,6 @@ function attachEvents() {
 
     });
 
-
-
     async function sendRequest(url, method) {
         try {
             let response = await fetch(url, { method });

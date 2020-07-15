@@ -104,9 +104,3 @@ function attachEvents() {
 }
 
 attachEvents();
-
-
-
-// let bodyObj = getBody(e.target.parentNode);
-//             bodyObj.catchId = response.name;
-//             generateCatchHTML(bodyObj);

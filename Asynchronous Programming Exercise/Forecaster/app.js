@@ -13,34 +13,41 @@ function attachEvents() {
     }
 
     submitBtn.addEventListener('click', async function () {
-        let data = await sendRequest(`https://judgetests.firebaseio.com/locations.json`, 'GET');
-        let searchedObj;
-        data.forEach(element => {
-            if (element.name === locationField.value) {
-                searchedObj = element;
-            }
-        });
+        try {
+            let data = await sendRequest(`https://judgetests.firebaseio.com/locations.json`, 'GET');
+            let searchedObj;
+            data.forEach(element => {
+                if (element.name === locationField.value) {
+                    searchedObj = element;
+                }
+            });
 
-        let currentConditions = await sendRequest(`https://judgetests.firebaseio.com/forecast/today/${searchedObj.code}.json`, 'GET');
-        let symbolCondition = conditionSymbol[currentConditions.forecast.condition];
-        let location = currentConditions.name;
-        let temp = `${currentConditions.forecast.low}${conditionSymbol['Degrees']}/${currentConditions.forecast.high}${conditionSymbol['Degrees']}`;
-        let condition = currentConditions.forecast.condition;
-        currentSection.innerHTML = '<div class="label">Current conditions</div>';
-        generateForecastHTML(symbolCondition, location, temp, condition);
-        let upcoming = await sendRequest(`https://judgetests.firebaseio.com/forecast/upcoming/${searchedObj.code}.json`, 'GET');
-        let divForcastInfo = document.createElement('div');
-        divForcastInfo.classList.add('forecast-info');
-        for (const element of upcoming.forecast) {
-            let condition = element.condition;
-            let symbol = conditionSymbol[condition];
-            let lowTemp = element.low;
-            let highTemp = element.high;
-            let temp = `${lowTemp}${conditionSymbol['Degrees']}/${highTemp}${conditionSymbol['Degrees']}`;
-            divForcastInfo.appendChild(generateUpcomingHTML(symbol, temp, condition));
+            let currentConditions = await sendRequest(`https://judgetests.firebaseio.com/forecast/today/${searchedObj.code}.json`, 'GET');
+            let symbolCondition = conditionSymbol[currentConditions.forecast.condition];
+            let location = currentConditions.name;
+            let temp = `${currentConditions.forecast.low}${conditionSymbol['Degrees']}/${currentConditions.forecast.high}${conditionSymbol['Degrees']}`;
+            let condition = currentConditions.forecast.condition;
+            currentSection.innerHTML = '<div class="label">Current conditions</div>';
+            generateForecastHTML(symbolCondition, location, temp, condition);
+            let upcoming = await sendRequest(`https://judgetests.firebaseio.com/forecast/upcoming/${searchedObj.code}.json`, 'GET');
+            let divForcastInfo = document.createElement('div');
+            divForcastInfo.classList.add('forecast-info');
+            for (const element of upcoming.forecast) {
+                let condition = element.condition;
+                let symbol = conditionSymbol[condition];
+                let lowTemp = element.low;
+                let highTemp = element.high;
+                let temp = `${lowTemp}${conditionSymbol['Degrees']}/${highTemp}${conditionSymbol['Degrees']}`;
+                divForcastInfo.appendChild(generateUpcomingHTML(symbol, temp, condition));
+            }
+            document.getElementById('upcoming').innerHTML = '<div class="label">Three-day forecast</div>';
+            document.getElementById('upcoming').appendChild(divForcastInfo);
+        } catch (error) {
+            if (!currentSection.innerHTML.includes('Error')) {
+                currentSection.innerHTML += 'Error';
+                document.getElementById('upcoming').innerHTML += 'Error';
+            }
         }
-        document.getElementById('upcoming').innerHTML = '<div class="label">Three-day forecast</div>';
-        document.getElementById('upcoming').appendChild(divForcastInfo);
     });
 
     async function sendRequest(url, method) {

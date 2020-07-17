@@ -2,6 +2,7 @@ function booksDB() {
     let submitBtn = document.getElementById('new-book').getElementsByTagName('button')[0];
     let editBtn = document.getElementById('new-book').getElementsByTagName('button')[1];
     let bookKey = '';
+    let editingSate = false;
     let loadAllBooks = document.getElementById('loadBooks');
     let booksTable = document.getElementsByTagName('tbody')[0];
     booksTable.innerHTML = '';
@@ -13,12 +14,13 @@ function booksDB() {
 
     async function updateBook(e) {
         e.preventDefault();
-        let bodyRequest = getFromInformation();
+        let bodyRequest = getFormInformation();
         await sendRequest(`https://softuni-tests-bfd33.firebaseio.com/books/${bookKey}.json`, 'PUT', JSON.stringify(bodyRequest));
-        setFormInformation({ author: '', isbn: '', title: '' });
+        setFormInformation({ author: '', isbn: '', title: '', tags: [] });
         listAllBooks();
         submitBtn.style.display = 'block';
         editBtn.style.display = 'none';
+        editingSate = false;
     }
 
     function updateDeleteBook(e) {
@@ -27,18 +29,29 @@ function booksDB() {
                 let bookInfo = {
                     author: e.target.parentNode.parentNode.children[1].textContent,
                     isbn: e.target.parentNode.parentNode.children[2].textContent,
-                    title: e.target.parentNode.parentNode.children[0].textContent
+                    title: e.target.parentNode.parentNode.children[0].textContent,
+                    tags: e.target.parentNode.parentNode.children[3].textContent.split(' ')
                 }
                 setFormInformation(bookInfo);
                 submitBtn.style.display = 'none';
                 editBtn.style.display = 'block';
+                editingSate = true;
             },
             'Delete': () => {
                 document.getElementById(`${bookKey}`).remove();
                 sendRequest(`https://softuni-tests-bfd33.firebaseio.com/books/${bookKey}.json`, 'DELETE');
             }
         }
-        if (e.target.tagName === 'BUTTON') {
+        if (editingSate === true && e.target.tagName === 'BUTTON') {
+            setFormInformation({ author: '', isbn: '', title: '', tags: [] });
+            submitBtn.style.display = 'block';
+            editBtn.style.display = 'none';
+            editingSate = false;
+            if (e.target.textContent === 'Delete') {
+                bookKey = e.target.parentNode.parentNode.getAttribute('id');
+                buttons[e.target.textContent]();
+            }
+        } else if (e.target.tagName === 'BUTTON') {
             bookKey = e.target.parentNode.parentNode.getAttribute('id');
             buttons[e.target.textContent]();
         }
@@ -46,23 +59,27 @@ function booksDB() {
 
     async function createNewBook(e) {
         e.preventDefault();
-        let bodyRequest = getFromInformation();
+        let bodyRequest = getFormInformation();
+        bodyRequest.tags = bodyRequest.tags.map(tag => tag.trim()).filter(tag => tag !== '');
         await sendRequest('https://softuni-tests-bfd33.firebaseio.com/books.json', 'POST', JSON.stringify(bodyRequest));
+        setFormInformation({ author: '', isbn: '', title: '', tags: [] });
         listAllBooks();
     }
 
-    function getFromInformation() {
+    function getFormInformation() {
         return {
             author: document.getElementById('author').value,
             isbn: document.getElementById('isbn').value,
-            title: document.getElementById('title').value
+            title: document.getElementById('title').value,
+            tags: document.getElementById('tags').value.split(' ')
         }
     }
 
-    function setFormInformation({ author, isbn, title }) {
+    function setFormInformation({ author, isbn, title, tags }) {
         document.getElementById('author').value = author;
         document.getElementById('isbn').value = isbn;
         document.getElementById('title').value = title;
+        document.getElementById('tags').value = tags.join(' ');
     }
 
     async function listAllBooks() {
@@ -79,6 +96,7 @@ function booksDB() {
             `<td>${bookObj.title}</td>` +
             `<td>${bookObj.author}</td>` +
             `<td>${bookObj.isbn}</td>` +
+            `<td>${bookObj.tags.join(' ')}</td>` +
             `<td>` +
             `<button>Edit</button>` +
             `<button>Delete</button>` +

@@ -103,7 +103,7 @@ function booksDB() {
             let data = await response.json();
             return data;
         } catch (error) {
-            //Handle errror
+            //Handle errors
         }
     }
 }

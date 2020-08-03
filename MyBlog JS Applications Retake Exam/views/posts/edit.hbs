@@ -1,0 +1,28 @@
+<main id="home-logged">
+    <section class="first-section">
+        <section class="background-container">
+            <form action="#/edit/{{currentPost.id}}" method="POST" class="edit-form">
+                <h1>Edit Post</h1>
+                <label for="title">{{currentPost.title}}</label>
+                <input type="text" name="title" value="{{currentPost.title}}">
+                <label for="category">{{currentPost.category}}</label>
+                <input type="text" name="category" value="{{currentPost.category}}">
+                <label for="content">{{currentPost.content}}</label>
+                <textarea name="content" cols="30" rows="7">{{currentPost.content}}</textarea>
+                <button>Edit</button>
+                <a href="#/home" id="close-btn"><img src="../../images/close.png"></a>
+            </form>
+        </section>
+    </section>
+    <section class="second-section">
+        <h3>Articles</h3>
+        <hr>
+        <div class="posts-row">
+            {{#each posts}}
+
+            {{> post}}
+
+            {{/each}}
+        </div>
+    </section>
+</main>

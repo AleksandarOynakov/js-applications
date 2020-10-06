@@ -17,7 +17,7 @@ class Company {
         } else {
             this.departments.push({ name: department, employees: [{ username, position, salary }], avgSalary: salary });
         }
-        return ` New employee is hired. Name: ${username}. Position: ${position}`;
+        return `New employee is hired. Name: ${username}. Position: ${position}`;
     }
 
     bestDepartment() {
